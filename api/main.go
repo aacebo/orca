@@ -8,6 +8,7 @@ import (
 	"time"
 
 	"github.com/aacebo/orca/api/amqp"
+	"github.com/aacebo/orca/api/postgres"
 	"github.com/aacebo/orca/api/routes"
 	"github.com/aacebo/orca/api/utils"
 	"github.com/go-chi/chi/v5"
@@ -21,6 +22,9 @@ func main() {
 	startedAt := time.Now()
 	os.Setenv("TZ", "") // UTC
 	gob.Register(map[string]any{})
+
+	pg := postgres.New()
+	defer pg.Close()
 
 	amqp := amqp.New()
 	defer amqp.Close()

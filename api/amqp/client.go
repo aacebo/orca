@@ -5,7 +5,7 @@ import (
 	"context"
 	"encoding/gob"
 	"fmt"
-	"log"
+	"log/slog"
 	"os"
 
 	"github.com/aacebo/orca/api/utils"
@@ -16,7 +16,7 @@ import (
 type Client struct {
 	conn   *amqp091.Connection
 	ch     *amqp091.Channel
-	log    *log.Logger
+	log    *slog.Logger
 	queues map[string]amqp091.Queue
 }
 
@@ -24,7 +24,7 @@ func New() *Client {
 	self := &Client{
 		conn:   nil,
 		ch:     nil,
-		log:    log.New(os.Stdout, "amqp ", log.Ldate|log.Ltime|log.Lshortfile),
+		log:    slog.New(slog.NewJSONHandler(os.Stdout, nil)).With("name", "amqp"),
 		queues: map[string]amqp091.Queue{},
 	}
 
@@ -42,18 +42,18 @@ func (self *Client) Connect() *Client {
 		))
 
 		if err != nil {
-			self.log.Fatal(err.Error())
+			self.log.Error(err.Error())
 		}
 
 		self.conn = conn
-		self.log.Println("connection established...")
+		self.log.Info("connection established...")
 	}
 
 	if self.ch == nil || self.ch.IsClosed() {
 		ch, err := self.conn.Channel()
 
 		if err != nil {
-			self.log.Fatal(err.Error())
+			self.log.Error(err.Error())
 		}
 
 		self.ch = ch
@@ -89,7 +89,7 @@ func (self Client) Publish(exchange string, queue string, body any) {
 		q, err := self.assertQueue(exchange, queue)
 
 		if err != nil {
-			self.log.Fatal(err.Error())
+			self.log.Error(err.Error())
 		}
 
 		self.queues[key] = *q
@@ -100,7 +100,7 @@ func (self Client) Publish(exchange string, queue string, body any) {
 	err := enc.Encode(body)
 
 	if err != nil {
-		self.log.Fatal(err.Error())
+		self.log.Error(err.Error())
 	}
 
 	err = self.ch.PublishWithContext(
@@ -116,7 +116,7 @@ func (self Client) Publish(exchange string, queue string, body any) {
 	)
 
 	if err != nil {
-		self.log.Fatal(err.Error())
+		self.log.Error(err.Error())
 	}
 }
 
@@ -133,7 +133,7 @@ func (self *Client) Consume(exchange string, queue string, handler func(amqp091.
 		q, err := self.assertQueue(exchange, queue)
 
 		if err != nil {
-			self.log.Fatal(err.Error())
+			self.log.Error(err.Error())
 		}
 
 		self.queues[key] = *q
@@ -150,7 +150,7 @@ func (self *Client) Consume(exchange string, queue string, handler func(amqp091.
 	)
 
 	if err != nil {
-		self.log.Fatal(err.Error())
+		self.log.Error(err.Error())
 	}
 
 	go func() {
