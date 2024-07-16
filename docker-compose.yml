@@ -1,4 +1,4 @@
-name: social-ai
+name: orca
 
 services:
   postgres:
@@ -21,10 +21,6 @@ services:
       RABBITMQ_MANAGEMENT_PORT: 15672
       RABBITMQ_MANAGEMENT_USER: admin
       RABBITMQ_MANAGEMENT_PASS: admin
-    volumes:
-      - type: bind
-        source: ./amqp/docker/
-        target: /etc/rabbitmq/
 
 networks:
   default:

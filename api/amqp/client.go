@@ -8,7 +8,7 @@ import (
 	"log"
 	"os"
 
-	"github.com/aacebo/social.ai/utils"
+	"github.com/aacebo/orca/api/utils"
 
 	"github.com/rabbitmq/amqp091-go"
 )
