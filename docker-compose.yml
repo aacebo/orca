@@ -1,0 +1,31 @@
+name: social-ai
+
+services:
+  postgres:
+    image: postgres:alpine
+    ports:
+      - 5432:5432
+    environment:
+      POSTGRES_DB: main
+      POSTGRES_USER: admin
+      POSTGRES_PASSWORD: admin
+
+  rabbitmq:
+    image: rabbitmq:3-management-alpine
+    ports:
+      - 5672:5672
+      - 15672:15672
+    environment:
+      RABBITMQ_DEFAULT_USER: admin
+      RABBITMQ_DEFAULT_PASS: admin
+      RABBITMQ_MANAGEMENT_PORT: 15672
+      RABBITMQ_MANAGEMENT_USER: admin
+      RABBITMQ_MANAGEMENT_PASS: admin
+    volumes:
+      - type: bind
+        source: ./amqp/docker/
+        target: /etc/rabbitmq/
+
+networks:
+  default:
+    driver: bridge
