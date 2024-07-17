@@ -8,8 +8,10 @@ import (
 	"time"
 
 	"github.com/aacebo/orca/api/amqp"
+	"github.com/aacebo/orca/api/common"
 	"github.com/aacebo/orca/api/postgres"
 	"github.com/aacebo/orca/api/routes"
+	"github.com/aacebo/orca/api/sockets"
 	"github.com/aacebo/orca/api/utils"
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/chi/v5/middleware"
@@ -29,6 +31,12 @@ func main() {
 	amqp := amqp.New()
 	defer amqp.Close()
 
+	ctx := common.Context{
+		"amqp":    amqp,
+		"pg":      pg,
+		"sockets": sockets.New(),
+	}
+
 	r := chi.NewRouter()
 
 	r.Use(middleware.RequestID)
@@ -46,7 +54,7 @@ func main() {
 		})
 	})
 
-	r.Mount("/v1", routes.NewRouter())
+	r.Mount("/v1", routes.New(ctx))
 
 	http.ListenAndServe(
 		fmt.Sprintf(":%s", utils.GetEnv("PORT", "3000")),

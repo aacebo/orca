@@ -167,6 +167,10 @@ func (self *Client) Consume(exchange string, queue string, handler func(amqp091.
 	}()
 }
 
+func (self *Client) Ack(id uint64) error {
+	return self.ch.Ack(id, false)
+}
+
 func (self Client) assertQueue(exchange string, queue string) (*amqp091.Queue, error) {
 	key := fmt.Sprintf("%s.%s", exchange, queue)
 	err := self.ch.ExchangeDeclare(
